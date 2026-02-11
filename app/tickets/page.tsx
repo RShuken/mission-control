@@ -197,8 +197,8 @@ export default function TicketsPage() {
 
       {/* Ticket List */}
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl overflow-hidden">
-        {/* Table Header */}
-        <div className="grid grid-cols-12 gap-4 p-4 border-b border-[var(--border)] text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">
+        {/* Table Header - Hidden on mobile */}
+        <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-[var(--border)] text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">
           <div className="col-span-1">Type</div>
           <div className="col-span-4">Title</div>
           <div className="col-span-2">Status</div>
@@ -218,49 +218,63 @@ export default function TicketsPage() {
             filteredTickets.map((ticket) => (
               <div
                 key={ticket.id}
-                className="grid grid-cols-12 gap-4 p-4 hover:bg-[var(--card-hover)] transition-colors cursor-pointer"
+                className="p-4 hover:bg-[var(--card-hover)] transition-colors cursor-pointer"
               >
-                <div className="col-span-1 flex items-center">
-                  <span className="text-lg">{typeIcons[ticket.type] || "📋"}</span>
-                </div>
-                <div className="col-span-4">
-                  <p className="font-medium text-white truncate">{ticket.title}</p>
+                {/* Mobile Layout */}
+                <div className="md:hidden space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{typeIcons[ticket.type] || "📋"}</span>
+                      <p className="font-medium text-white">{ticket.title}</p>
+                    </div>
+                  </div>
                   {ticket.description && (
-                    <p className="text-xs text-[var(--muted)] truncate mt-0.5">
-                      {ticket.description}
-                    </p>
+                    <p className="text-xs text-[var(--muted)]">{ticket.description}</p>
                   )}
+                  <div className="flex flex-wrap gap-2">
+                    <span className={`status-badge ${statusColors[ticket.status] || "status-open"}`}>
+                      {ticket.status.replace("-", " ")}
+                    </span>
+                    <span className={`status-badge ${priorityColors[ticket.priority] || "priority-medium"}`}>
+                      {ticket.priority}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-[var(--muted)]">
+                    <span>{ticket.project}</span>
+                    <span>{formatDistanceToNow(new Date(ticket.updatedAt || ticket.createdAt), { addSuffix: true })}</span>
+                  </div>
                 </div>
-                <div className="col-span-2 flex items-center">
-                  <span
-                    className={`status-badge ${
-                      statusColors[ticket.status] || "status-open"
-                    }`}
-                  >
-                    {ticket.status.replace("-", " ")}
-                  </span>
-                </div>
-                <div className="col-span-1 flex items-center">
-                  <span
-                    className={`status-badge ${
-                      priorityColors[ticket.priority] || "priority-medium"
-                    }`}
-                  >
-                    {ticket.priority}
-                  </span>
-                </div>
-                <div className="col-span-2 flex items-center">
-                  <span className="text-sm text-gray-400 truncate">
-                    {ticket.project}
-                  </span>
-                </div>
-                <div className="col-span-2 flex items-center">
-                  <span className="text-sm text-[var(--muted)]">
-                    {formatDistanceToNow(
-                      new Date(ticket.updatedAt || ticket.createdAt),
-                      { addSuffix: true }
+                {/* Desktop Layout */}
+                <div className="hidden md:grid grid-cols-12 gap-4">
+                  <div className="col-span-1 flex items-center">
+                    <span className="text-lg">{typeIcons[ticket.type] || "📋"}</span>
+                  </div>
+                  <div className="col-span-4">
+                    <p className="font-medium text-white truncate">{ticket.title}</p>
+                    {ticket.description && (
+                      <p className="text-xs text-[var(--muted)] truncate mt-0.5">
+                        {ticket.description}
+                      </p>
                     )}
-                  </span>
+                  </div>
+                  <div className="col-span-2 flex items-center">
+                    <span className={`status-badge ${statusColors[ticket.status] || "status-open"}`}>
+                      {ticket.status.replace("-", " ")}
+                    </span>
+                  </div>
+                  <div className="col-span-1 flex items-center">
+                    <span className={`status-badge ${priorityColors[ticket.priority] || "priority-medium"}`}>
+                      {ticket.priority}
+                    </span>
+                  </div>
+                  <div className="col-span-2 flex items-center">
+                    <span className="text-sm text-gray-400 truncate">{ticket.project}</span>
+                  </div>
+                  <div className="col-span-2 flex items-center">
+                    <span className="text-sm text-[var(--muted)]">
+                      {formatDistanceToNow(new Date(ticket.updatedAt || ticket.createdAt), { addSuffix: true })}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))

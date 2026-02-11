@@ -14,7 +14,7 @@ export function KanbanColumn({ column, children }: KanbanColumnProps) {
   });
 
   return (
-    <div className="flex-shrink-0 w-80">
+    <div className="flex-shrink-0 w-72 sm:w-80">
       {/* Column Header */}
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">

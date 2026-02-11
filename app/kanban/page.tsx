@@ -159,22 +159,22 @@ export default function KanbanPage() {
   return (
     <div className="h-full">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Kanban Board</h1>
-          <p className="text-[var(--muted)]">
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Kanban Board</h1>
+          <p className="text-[var(--muted)] text-sm">
             {totalItems} items across {columns.length} columns
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <select className="px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-lg text-sm text-gray-300">
+          <select className="flex-1 sm:flex-none px-3 py-2 bg-[var(--card)] border border-[var(--border)] rounded-lg text-sm text-gray-300">
             <option value="all">All Projects</option>
             <option value="oci">OpenClaw Install</option>
             <option value="dat">Denver AI Training</option>
             <option value="mc-leads">MC Leads</option>
           </select>
-          <button className="px-4 py-2 bg-accent-600 hover:bg-accent-500 rounded-lg text-sm text-white font-medium transition-colors">
-            + Add Task
+          <button className="px-3 py-2 bg-accent-600 hover:bg-accent-500 rounded-lg text-sm text-white font-medium transition-colors whitespace-nowrap">
+            + Add
           </button>
         </div>
       </div>

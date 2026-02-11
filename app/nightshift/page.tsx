@@ -61,40 +61,40 @@ export default function NightShiftPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl sm:text-3xl">
             🌙
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">NightShift Control Center</h1>
-            <p className="text-[var(--muted)]">
-              Autonomous work while you sleep • Queue tasks, configure strategies, monitor progress
+            <h1 className="text-xl sm:text-2xl font-bold text-white">NightShift</h1>
+            <p className="text-[var(--muted)] text-xs sm:text-sm">
+              Autonomous work while you sleep
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm font-medium flex items-center gap-2">
+          <div className="px-3 py-1.5 sm:px-4 sm:py-2 bg-green-500/20 text-green-400 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            NightShift Active
+            Active
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 p-1 bg-[var(--card)] rounded-xl border border-[var(--border)]">
+      <div className="flex items-center gap-1 sm:gap-2 p-1 bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === tab.id
                 ? "bg-accent-600 text-white"
                 : "text-[var(--muted)] hover:text-white hover:bg-[var(--background)]"
             }`}
           >
             <span>{tab.icon}</span>
-            {tab.label}
+            <span className="hidden sm:inline">{tab.label}</span>
           </button>
         ))}
       </div>

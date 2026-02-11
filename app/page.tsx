@@ -68,22 +68,22 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Mission Control</h1>
-          <p className="text-[var(--muted)]">
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Mission Control</h1>
+          <p className="text-[var(--muted)] text-sm">
             Overview of all projects, PRs, and work
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="px-4 py-2 bg-[var(--card)] hover:bg-[var(--card-hover)] border border-[var(--border)] rounded-lg text-sm text-gray-300 transition-colors">
-            Refresh Data
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button className="flex-1 sm:flex-none px-3 py-2 bg-[var(--card)] hover:bg-[var(--card-hover)] border border-[var(--border)] rounded-lg text-sm text-gray-300 transition-colors">
+            Refresh
           </button>
           <Link
             href="/kanban"
-            className="px-4 py-2 bg-accent-600 hover:bg-accent-500 rounded-lg text-sm text-white font-medium transition-colors"
+            className="flex-1 sm:flex-none px-3 py-2 bg-accent-600 hover:bg-accent-500 rounded-lg text-sm text-white font-medium transition-colors text-center"
           >
-            Open Kanban →
+            Kanban →
           </Link>
         </div>
       </div>

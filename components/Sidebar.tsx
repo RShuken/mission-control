@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -88,9 +89,44 @@ const projects = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-64 bg-[#0d0d12] border-r border-[var(--border)] flex flex-col">
+    <>
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0d0d12] border-b border-[var(--border)] flex items-center justify-between px-4 z-50">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+            MC
+          </div>
+          <span className="font-bold text-white">Mission Control</span>
+        </div>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 text-gray-400 hover:text-white"
+        >
+          {isOpen ? (
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`fixed left-0 top-0 bottom-0 w-64 bg-[#0d0d12] border-r border-[var(--border)] flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       {/* Logo */}
       <div className="p-6 border-b border-[var(--border)]">
         <div className="flex items-center gap-3">
@@ -115,6 +151,7 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
+              onClick={() => setIsOpen(false)}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive
                   ? "bg-accent-500/20 text-accent-400"
@@ -136,6 +173,7 @@ export function Sidebar() {
             <Link
               key={project.name}
               href={project.href}
+              onClick={() => setIsOpen(false)}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 isActive
                   ? "bg-accent-500/20 text-accent-400"
@@ -162,5 +200,6 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }
