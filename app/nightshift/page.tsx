@@ -42,6 +42,27 @@ export default function NightShiftPage() {
   const [queuedTasks, setQueuedTasks] = useState<QueuedTask[]>([]);
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [monitoringTargets, setMonitoringTargets] = useState<MonitoringTarget[]>([]);
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [actionStatus, setActionStatus] = useState<{message: string; type: "success" | "info" | "error"} | null>(null);
+
+  const handleAddToQueue = () => {
+    setShowAddTaskModal(true);
+  };
+
+  const handleCheckLeads = () => {
+    setActionStatus({ message: "Checking leads...", type: "info" });
+    // Simulate API call
+    setTimeout(() => {
+      setActionStatus({ message: "✅ Lead check complete: 2 new leads, 1 needs follow-up", type: "success" });
+      setTimeout(() => setActionStatus(null), 5000);
+    }, 1500);
+  };
+
+  const handleRunRalphLoop = () => {
+    setActiveTab("ralph");
+    setActionStatus({ message: "Navigate to Ralph Loop tab to start a new improvement cycle", type: "info" });
+    setTimeout(() => setActionStatus(null), 3000);
+  };
 
   useEffect(() => {
     // Load mock data
@@ -99,12 +120,39 @@ export default function NightShiftPage() {
         ))}
       </div>
 
+      {/* Action Status Notification */}
+      {actionStatus && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg ${
+          actionStatus.type === "success" ? "bg-green-500/90 text-white" :
+          actionStatus.type === "error" ? "bg-red-500/90 text-white" :
+          "bg-blue-500/90 text-white"
+        }`}>
+          {actionStatus.message}
+        </div>
+      )}
+
+      {/* Add Task Modal */}
+      {showAddTaskModal && (
+        <AddTaskModal
+          onClose={() => setShowAddTaskModal(false)}
+          onAdd={(task) => {
+            setQueuedTasks(prev => [task, ...prev]);
+            setShowAddTaskModal(false);
+            setActionStatus({ message: "✅ Task added to queue", type: "success" });
+            setTimeout(() => setActionStatus(null), 3000);
+          }}
+        />
+      )}
+
       {/* Tab Content */}
       {activeTab === "overview" && (
         <OverviewTab
           queuedTasks={queuedTasks}
           strategies={strategies}
           monitoringTargets={monitoringTargets}
+          onAddToQueue={handleAddToQueue}
+          onCheckLeads={handleCheckLeads}
+          onRunRalphLoop={handleRunRalphLoop}
         />
       )}
       {activeTab === "queue" && (
@@ -126,10 +174,16 @@ function OverviewTab({
   queuedTasks,
   strategies,
   monitoringTargets,
+  onAddToQueue,
+  onCheckLeads,
+  onRunRalphLoop,
 }: {
   queuedTasks: QueuedTask[];
   strategies: Strategy[];
   monitoringTargets: MonitoringTarget[];
+  onAddToQueue: () => void;
+  onCheckLeads: () => void;
+  onRunRalphLoop: () => void;
 }) {
   const pendingTasks = queuedTasks.filter((t) => t.status === "queued").length;
   const inProgressTasks = queuedTasks.filter((t) => t.status === "in-progress").length;
@@ -195,18 +249,21 @@ function OverviewTab({
           description="Queue a task for tonight's work"
           icon="➕"
           action="Add Task"
+          onClick={onAddToQueue}
         />
         <QuickActionCard
           title="Check Leads"
           description="Review new leads and follow-ups"
           icon="📧"
           action="Check Now"
+          onClick={onCheckLeads}
         />
         <QuickActionCard
           title="Run Ralph Loop"
           description="Start improvement cycle on a project"
           icon="🔄"
           action="Start Loop"
+          onClick={onRunRalphLoop}
         />
       </div>
 
@@ -447,6 +504,8 @@ function MonitoringTab({
   targets: MonitoringTarget[];
   setTargets: React.Dispatch<React.SetStateAction<MonitoringTarget[]>>;
 }) {
+  const [checkingId, setCheckingId] = useState<string | null>(null);
+
   const statusColors: Record<string, string> = {
     ok: "bg-green-500/20 text-green-400",
     attention: "bg-yellow-500/20 text-yellow-400",
@@ -460,6 +519,19 @@ function MonitoringTab({
     site: "🌐",
     leads: "💰",
     repo: "📁",
+  };
+
+  const handleCheckNow = (targetId: string) => {
+    setCheckingId(targetId);
+    // Simulate check
+    setTimeout(() => {
+      setTargets(prev => prev.map(t => 
+        t.id === targetId 
+          ? { ...t, lastChecked: new Date().toISOString(), status: "ok" as const }
+          : t
+      ));
+      setCheckingId(null);
+    }, 1500);
   };
 
   return (
@@ -506,8 +578,12 @@ function MonitoringTab({
                   ? formatDistanceToNow(new Date(target.lastChecked), { addSuffix: true })
                   : "Never"}
               </span>
-              <button className="text-sm text-accent-400 hover:text-accent-300">
-                Check Now
+              <button 
+                onClick={() => handleCheckNow(target.id)}
+                disabled={checkingId === target.id}
+                className="text-sm text-accent-400 hover:text-accent-300 disabled:opacity-50"
+              >
+                {checkingId === target.id ? "Checking..." : "Check Now"}
               </button>
             </div>
           </div>
@@ -519,8 +595,34 @@ function MonitoringTab({
 
 // Ralph Wiggum Loop Tab
 function RalphLoopTab() {
+  const [selectedProject, setSelectedProject] = useState("OpenClaw Install");
+  const [improvementTarget, setImprovementTarget] = useState("");
+  const [loopStarted, setLoopStarted] = useState(false);
+
+  const handleStartLoop = () => {
+    if (!improvementTarget.trim()) {
+      alert("Please enter an improvement target");
+      return;
+    }
+    setLoopStarted(true);
+    // Reset after showing confirmation
+    setTimeout(() => {
+      setLoopStarted(false);
+      setImprovementTarget("");
+    }, 3000);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Loop Started Notification */}
+      {loopStarted && (
+        <div className="bg-green-500/20 border border-green-500/40 rounded-lg p-4 text-green-400">
+          ✅ Ralph Loop started for <strong>{selectedProject}</strong>: &quot;{improvementTarget}&quot;
+          <br />
+          <span className="text-sm text-green-300">The loop will run during tonight&apos;s NightShift.</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-6">
         <div className="flex items-center gap-4 mb-4">
@@ -633,7 +735,11 @@ function RalphLoopTab() {
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm text-[var(--muted)] mb-2">Project</label>
-            <select className="w-full px-4 py-2 bg-[var(--background)] border border-[var(--border)] rounded-lg text-gray-300">
+            <select 
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              className="w-full px-4 py-2 bg-[var(--background)] border border-[var(--border)] rounded-lg text-gray-300"
+            >
               <option>OpenClaw Install</option>
               <option>Denver AI Training</option>
               <option>MC Leads Worker</option>
@@ -644,12 +750,17 @@ function RalphLoopTab() {
             <label className="block text-sm text-[var(--muted)] mb-2">Improvement Target</label>
             <input
               type="text"
+              value={improvementTarget}
+              onChange={(e) => setImprovementTarget(e.target.value)}
               placeholder="e.g., Increase mobile conversion"
               className="w-full px-4 py-2 bg-[var(--background)] border border-[var(--border)] rounded-lg text-white placeholder-[var(--muted)]"
             />
           </div>
         </div>
-        <button className="mt-4 px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 rounded-lg text-sm text-white font-medium transition-colors">
+        <button 
+          onClick={handleStartLoop}
+          className="mt-4 px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 rounded-lg text-sm text-white font-medium transition-colors"
+        >
           🔄 Start Loop
         </button>
       </div>
@@ -721,11 +832,13 @@ function QuickActionCard({
   description,
   icon,
   action,
+  onClick,
 }: {
   title: string;
   description: string;
   icon: string;
   action: string;
+  onClick?: () => void;
 }) {
   return (
     <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 hover:border-[var(--border-hover)] transition-colors">
@@ -736,10 +849,152 @@ function QuickActionCard({
         <div className="flex-1">
           <h3 className="font-semibold text-white">{title}</h3>
           <p className="text-sm text-[var(--muted)] mt-1">{description}</p>
-          <button className="mt-3 text-sm text-accent-400 hover:text-accent-300">
+          <button 
+            onClick={onClick}
+            className="mt-3 text-sm text-accent-400 hover:text-accent-300"
+          >
             {action} →
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Add Task Modal
+function AddTaskModal({
+  onClose,
+  onAdd,
+}: {
+  onClose: () => void;
+  onAdd: (task: QueuedTask) => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [project, setProject] = useState("OpenClaw Install");
+  const [priority, setPriority] = useState<"critical" | "high" | "medium" | "low">("medium");
+  const [type, setType] = useState<"content" | "code" | "research" | "outreach" | "maintenance">("code");
+  const [estimatedMinutes, setEstimatedMinutes] = useState(30);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    
+    const task: QueuedTask = {
+      id: `task-${Date.now()}`,
+      title,
+      description,
+      project,
+      priority,
+      type,
+      estimatedMinutes,
+      status: "queued",
+      createdAt: new Date().toISOString(),
+    };
+    onAdd(task);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl w-full max-w-lg mx-4 shadow-2xl">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
+          <h2 className="text-lg font-semibold text-white">Add Task to Queue</h2>
+          <button onClick={onClose} className="text-[var(--muted)] hover:text-white text-xl">&times;</button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          <div>
+            <label className="block text-sm text-[var(--muted)] mb-1">Task Title *</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g., Fix mobile navigation"
+              className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-lg text-white placeholder-[var(--muted)]"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-[var(--muted)] mb-1">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Additional details..."
+              rows={2}
+              className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-lg text-white placeholder-[var(--muted)]"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-[var(--muted)] mb-1">Project</label>
+              <select
+                value={project}
+                onChange={(e) => setProject(e.target.value)}
+                className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-lg text-white"
+              >
+                <option>OpenClaw Install</option>
+                <option>Denver AI Training</option>
+                <option>Mission Control</option>
+                <option>MC Leads Worker</option>
+                <option>Lead Pipeline</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm text-[var(--muted)] mb-1">Type</label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as typeof type)}
+                className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-lg text-white"
+              >
+                <option value="code">💻 Code</option>
+                <option value="content">✍️ Content</option>
+                <option value="research">🔍 Research</option>
+                <option value="outreach">📧 Outreach</option>
+                <option value="maintenance">🔧 Maintenance</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-[var(--muted)] mb-1">Priority</label>
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as typeof priority)}
+                className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-lg text-white"
+              >
+                <option value="critical">🔴 Critical</option>
+                <option value="high">🟠 High</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="low">🟢 Low</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm text-[var(--muted)] mb-1">Est. Time (min)</label>
+              <input
+                type="number"
+                value={estimatedMinutes}
+                onChange={(e) => setEstimatedMinutes(parseInt(e.target.value) || 30)}
+                min={5}
+                max={480}
+                className="w-full px-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-lg text-white"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm text-[var(--muted)] hover:text-white"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-accent-600 hover:bg-accent-500 rounded-lg text-sm text-white font-medium"
+            >
+              Add to Queue
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

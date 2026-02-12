@@ -5,6 +5,10 @@ node_modules/
 .next/
 out/
 
+# Test artifacts
+playwright-report/
+test-results/
+
 # Environment
 .env*
 !.env.example
