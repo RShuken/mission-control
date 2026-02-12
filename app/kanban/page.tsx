@@ -32,6 +32,11 @@ export default function KanbanPage() {
   const [columns, setColumns] = useState<KanbanColumnType[]>([]);
   const [activeItem, setActiveItem] = useState<KanbanItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [workflowNotification, setWorkflowNotification] = useState<{
+    itemTitle: string;
+    columnTitle: string;
+    workflowDescription: string;
+  } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -143,6 +148,17 @@ export default function KanbanPage() {
 
       // Trigger workflow based on destination column
       console.log(`Item ${item.title} moved to ${destColumn.title}`);
+      
+      // Show workflow notification if destination column has a workflow
+      if (destColumn.workflowDescription) {
+        setWorkflowNotification({
+          itemTitle: item.title,
+          columnTitle: destColumn.title,
+          workflowDescription: destColumn.workflowDescription,
+        });
+        // Auto-hide after 6 seconds
+        setTimeout(() => setWorkflowNotification(null), 6000);
+      }
     }
   }
 
@@ -158,6 +174,38 @@ export default function KanbanPage() {
 
   return (
     <div className="h-full">
+      {/* Workflow Notification */}
+      {workflowNotification && (
+        <div className="fixed top-4 right-4 z-50 max-w-md bg-[var(--card)] border border-accent-500/50 rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-right">
+          <div className="bg-accent-500/20 px-4 py-2 border-b border-accent-500/30">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-accent-300">
+                ⚡ Workflow Triggered
+              </span>
+              <button
+                onClick={() => setWorkflowNotification(null)}
+                className="text-accent-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+          <div className="p-4">
+            <p className="text-white font-medium mb-1">
+              &quot;{workflowNotification.itemTitle}&quot;
+            </p>
+            <p className="text-sm text-[var(--muted)] mb-3">
+              Moved to <span className="text-accent-400">{workflowNotification.columnTitle}</span>
+            </p>
+            <div className="p-3 bg-[var(--background)] rounded-lg">
+              <p className="text-sm text-gray-300">
+                {workflowNotification.workflowDescription}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>

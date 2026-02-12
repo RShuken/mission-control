@@ -41,6 +41,8 @@ export interface KanbanColumn {
   title: string;
   color: string;
   items: KanbanItem[];
+  workflowId?: string;
+  workflowDescription?: string;
 }
 
 export interface KanbanItem {
@@ -220,6 +222,8 @@ export function getKanbanColumns(): KanbanColumn[] {
       id: "backlog",
       title: "Backlog",
       color: "bg-gray-500",
+      workflowId: undefined,
+      workflowDescription: undefined,
       items: [
         {
           id: "task-1",
@@ -247,6 +251,8 @@ export function getKanbanColumns(): KanbanColumn[] {
       id: "in-progress",
       title: "In Progress",
       color: "bg-blue-500",
+      workflowId: undefined,
+      workflowDescription: "Task is actively being worked on. No automated actions.",
       items: [
         {
           id: "task-3",
@@ -264,6 +270,8 @@ export function getKanbanColumns(): KanbanColumn[] {
       id: "code-review",
       title: "Code Review",
       color: "bg-purple-500",
+      workflowId: "wf-1",
+      workflowDescription: "🔍 Auto Code Review: Runs linting, type checks, and build verification. Blocks merge if checks fail.",
       items: [
         {
           id: "pr-dat-15",
@@ -291,18 +299,24 @@ export function getKanbanColumns(): KanbanColumn[] {
       id: "truth-review",
       title: "Truth Review",
       color: "bg-pink-500",
+      workflowId: "wf-2",
+      workflowDescription: "🔍 Truth Agent Review: Scans for fabricated testimonials, fake statistics, unverifiable claims, and bogus ratings. Zero tolerance for fake content.",
       items: [],
     },
     {
       id: "ready-deploy",
       title: "Ready to Deploy",
       color: "bg-green-500",
+      workflowId: "wf-3",
+      workflowDescription: "🚀 Auto Deploy: Merges to develop branch when all reviews pass. Sends Telegram notification for morning review.",
       items: [],
     },
     {
       id: "deployed",
       title: "Deployed",
       color: "bg-emerald-500",
+      workflowId: undefined,
+      workflowDescription: "✅ Complete: Item has been deployed to production. No further actions needed.",
       items: [
         {
           id: "task-4",

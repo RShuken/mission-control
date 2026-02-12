@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { type KanbanColumn as KanbanColumnType } from "@/lib/data";
 
@@ -12,6 +13,7 @@ export function KanbanColumn({ column, children }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
+  const [showWorkflow, setShowWorkflow] = useState(false);
 
   return (
     <div className="flex-shrink-0 w-72 sm:w-80">
@@ -23,6 +25,17 @@ export function KanbanColumn({ column, children }: KanbanColumnProps) {
           <span className="text-xs text-[var(--muted)] bg-[var(--card)] px-2 py-0.5 rounded-full">
             {column.items.length}
           </span>
+          {column.workflowId && (
+            <button
+              onClick={() => setShowWorkflow(!showWorkflow)}
+              className="text-accent-400 hover:text-accent-300 p-0.5"
+              title="View workflow"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+              </svg>
+            </button>
+          )}
         </div>
         <button className="text-[var(--muted)] hover:text-white p-1">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -30,6 +43,21 @@ export function KanbanColumn({ column, children }: KanbanColumnProps) {
           </svg>
         </button>
       </div>
+
+      {/* Workflow Description */}
+      {showWorkflow && column.workflowDescription && (
+        <div className="mb-3 p-3 bg-accent-500/10 border border-accent-500/30 rounded-lg text-sm text-accent-200">
+          <div className="flex items-start justify-between gap-2">
+            <p>{column.workflowDescription}</p>
+            <button 
+              onClick={() => setShowWorkflow(false)}
+              className="text-accent-400 hover:text-white flex-shrink-0"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Column Content */}
       <div
